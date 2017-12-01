@@ -1,3 +1,6 @@
+"""Only in this model, a batch_normalization layer is attached to a dense layer.
+A drop_out layer is then attached to a batch_normalization layer.
+"""
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -6,6 +9,7 @@ from sklearn.preprocessing import StandardScaler
 
 import argparse
 import tempfile
+import time
 
 import DataUtil
 import Parameters
@@ -13,6 +17,8 @@ import PreprocessingUtil
 
 np.random.seed(1)
 tf.set_random_seed(1)
+
+
 
 def train_and_evaluate(trainFile, propertiesFile, model_dir):
     """Train and evaluate a model.
@@ -47,6 +53,7 @@ def train_and_evaluate(trainFile, propertiesFile, model_dir):
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         sess.run(iterator.initializer, feed_dict={x: x_train, y: y_train})
+        start_time = time.time()
         for i in range(1600):
             batch = iterator.get_next()
             if i % 100 == 0:
@@ -55,6 +62,7 @@ def train_and_evaluate(trainFile, propertiesFile, model_dir):
                 })
                 print("batch {}, mean squared error: {}".format(i, train_loss))
             train_step.run(feed_dict={x: batch[0].eval(), y: batch[1].eval()})
+        print("Training takes {} seconds".format(time.time() - start_time))
         y_test_pred = sess.run(y_pred, feed_dict={x:x_test, y:y_test})
         y_train_pred = sess.run(y_pred, feed_dict={x:x_train, y:y_train})
     print("test set error: {}".format(

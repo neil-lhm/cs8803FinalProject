@@ -22,7 +22,7 @@ def fillNAsWithNones(dataFrame):
     return dataFrame
 
 def applyLabelEncoder(df_properties):
-    """Apply LabelEncoder to properties DataFrame and
+    """Fill nas and apply LabelEncoder to properties DataFrame and
     return the modified DataFrame.
 
         df_properties: pandas.DataFrame, the properties DataFrame to apply

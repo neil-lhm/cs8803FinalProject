@@ -1,3 +1,5 @@
+"""Experiments on classis machine models: SVM, KNN and Random Forests.
+"""
 import pandas as pd
 
 from sklearn.ensemble import RandomForestRegressor

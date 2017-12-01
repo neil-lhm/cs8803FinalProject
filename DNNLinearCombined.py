@@ -1,11 +1,17 @@
+"""This script supports three models: linear regression, deep neural network
+and DNNLinearCombined. Categorical features are handled by LabelEncoders. Thus
+all models are trained on the full set of features.
+"""
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import xgboost as xgb
 from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import MinMaxScaler
 
 import argparse
 import tempfile
+import time
 
 import DataUtil
 import Parameters
@@ -32,7 +38,9 @@ def train_and_evaluate(trainFile, propertiesFile, model_type, model_dir):
         print("Storing model to temporary directory: {}".format(model_dir))
     print("Training started")
     m = _build_estimator(model_dir, model_type, x_train)
+    start_time = time.time()
     m.train(input_fn=_input_fn(x_train, y_train, num_epochs=5))
+    print("Training takes {} seconds".format(time.time() - start_time))
     print("Training done. Starting Evaluation")
     # evaluation
     y_test_pred = list(m.predict(input_fn=_input_fn(
@@ -136,7 +144,8 @@ if __name__ == "__main__":
         help='path to train_2016_v2.csv file', required=True)
     parser.add_argument('-pf', '--propertiesFile',
         help='path to properties_2016.csv.csv file', required=True)
-    parser.add_argument("--modelTpye", help="Options are [wide, deep, combined].\
+    parser.add_argument("-m", "--modelTpye",
+        help="Options are [wide, deep, combined].\
         'wide' selects the linear regression model, \
         'deep' selects the deep neural network model \
         and 'combined' selects the ensemble model(dnn & linear). Default\

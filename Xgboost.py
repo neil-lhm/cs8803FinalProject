@@ -1,3 +1,5 @@
+"""Experiment on Xgboost: http://xgboost.readthedocs.io/en/latest/model.html.
+"""
 import xgboost as xgb
 import pandas as pd
 import numpy as np
@@ -6,6 +8,7 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import StandardScaler
 
 import argparse
+import time
 
 import DataUtil
 import Parameters
@@ -18,7 +21,6 @@ def train_and_evaluate(trainFile, propertiesFile):
 
         trainFile: path to train_2016_v2.csv
         propertiesFile: path to properties_2016.csv
-        modelDir: directory to store model
     """
     x_train, x_test, y_train, y_test = _read_and_process_data(
         trainFile, propertiesFile)
@@ -35,15 +37,17 @@ def train_and_evaluate(trainFile, propertiesFile):
     params['silent'] = 1
 
     watchlist = [(train, 'train'), (test, 'test')]
+    start_time = time.time()
     clf = xgb.train(params, train, 10000, watchlist, early_stopping_rounds=100,
         verbose_eval=10)
+    print("Training takes {} seconds".format(time.time() - start_time))
     print("test set mean_abosulte_error is: {}".format(
         mean_absolute_error(y_true = y_test.values, y_pred =clf.predict(test))))
     print("training set mean_abosulte_error is: {}".format(
         mean_absolute_error(y_true = y_train.values, y_pred =clf.predict(train))))
 
 def _read_and_process_data(trainFile, propertiesFile):
-    """Read and preprocess data with LabelEncoder, MinMaxScaler
+    """Read and preprocess data with LabelEncoder, StandardScaler
         and IsolationForest. Return x_train, x_test, y_train and y_test.
     """
     print("Start reading and processing data")
@@ -87,6 +91,5 @@ if __name__ == "__main__":
         help='path to train_2016_v2.csv file', required=True)
     parser.add_argument('-pf', '--propertiesFile',
         help='path to properties_2016.csv.csv file', required=True)
-    parser.add_argument()
     args = parser.parse_args()
     train_and_evaluate(args.trainFile, args.propertiesFile)

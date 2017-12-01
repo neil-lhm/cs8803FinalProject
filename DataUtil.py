@@ -1,4 +1,4 @@
-"""Util functions for reading data into pandas dataframes.
+"""Util functions for reading and handling data.
 """
 
 import pandas as pd
